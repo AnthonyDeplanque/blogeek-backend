@@ -1,6 +1,6 @@
 require('dotenv').config();
-const cors = require('cors');
-const path = require('path');
+import cors = require('cors');
+import path = require('path');
 
 
 

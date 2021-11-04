@@ -1,9 +1,9 @@
 import * as Joi from 'joi';
 import * as express from "express";
 import { ServerDetails, ServerResponses } from '../config/serverResponses';
+import { Articles } from '../../Blogeek-library/models/Articles';
 import { generateId } from '../services/idGenerator';
-import { Articles } from '../models/Articles';
-import { Users } from '../models/Users';
+
 
 const articlesQueries = require('../SQLqueries/articles');
 const articlesMiddlewares = require("../middlewares/articles");
@@ -69,21 +69,17 @@ const getAllArticles = async (req: express.Request, res: express.Response) => {
   }
   else if (!user && !first && !last && !title)
   {
-    const articles = await articlesQueries.getArticlesQuery().then(async ([results]: [any][]) => {
-      await results.map(async (article: Articles, index: number) => {
-        await usersQueries.getOneUserById(article.id_user).then(async ([[resUser]]: [[Users]]) => {
-          results[index].creator = await resUser;
+    articlesQueries.getArticlesQuery()
+      .then(([results]: any[]) => {
+        const promises = results.map(async (article: Articles) => {
+          article.creator =
+            await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: any) => { return user; })
+
+          return article;
         })
+        Promise.all(promises).then((result: any) => res.status(200).json(result));
       })
-      res.status(200).json(articles)
-    })
-      .catch((error: unknown) => {
-        console.error(error);
-        res.status(500).json({
-          message: ServerResponses.SERVER_ERROR,
-          detail: ServerDetails.ERROR_RETRIEVING
-        })
-      })
+      .catch((error: any) => res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: error }));
   } else
   {
     res.status(500).json({

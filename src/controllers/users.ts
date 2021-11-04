@@ -3,8 +3,9 @@ import * as Joi from 'joi';
 import * as argon2 from 'argon2';
 import { generateId } from '../services/idGenerator';
 import { ServerDetails, ServerResponses } from '../config/serverResponses';
-import { Users } from "../models/Users";
-import { Roles, ROLE } from '../models/Role';
+import { Users } from '../../Blogeek-library/models/Users';
+import { ROLE, Roles } from '../../Blogeek-library/models/Role';
+
 
 const usersQueries = require('../SQLqueries/users');
 const rolesToUsersQueries = require('../SQLqueries/rolesToUsers');

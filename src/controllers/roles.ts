@@ -1,8 +1,9 @@
 import * as express from 'express';
+import { ROLE, Roles } from '../../Blogeek-library/models/Role';
+import { Users } from '../../Blogeek-library/models/Users';
 
 import { ServerDetails, ServerResponses } from '../config/serverResponses';
-import { ROLE, Roles } from '../models/Role';
-import { Users } from '../models/Users';
+
 import { generateId } from '../services/idGenerator';
 
 const usersQueries = require('../SQLqueries/users');

@@ -1,5 +1,5 @@
 import * as mysql2 from 'mysql2';
-import { Categories, SubCategories } from '../models/Categories';
+import { Categories, SubCategories } from '../../Blogeek-library/models/Categories';
 
 const connection = require('../db-config');
 const db: mysql2.Connection = connection.promise();

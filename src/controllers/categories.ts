@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import * as express from "express";
-import { Categories, SubCategories } from '../models/Categories';
+import { Categories, SubCategories } from '../../Blogeek-library/models/Categories';
 import { ServerDetails, ServerResponses } from '../config/serverResponses';
 import { generateId } from '../services/idGenerator';
 

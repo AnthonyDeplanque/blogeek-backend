@@ -14,58 +14,42 @@ const getAllArticles = async (req: express.Request, res: express.Response) => {
 
   if (first && last && !title && !user)
   {
-    articlesQueries.getSelectedArticlesQuery(+first, +last).then(([results]: [Articles][]) => {
-      res.status(200).json(results)
-    }).catch((error: unknown) => {
-      console.error(error);
-      res.status(500).json({
-        message: ServerResponses.SERVER_ERROR,
-        detail: ServerDetails.ERROR_RETRIEVING
+    articlesQueries.getSelectedArticlesQuery(+first, +last).then(([results]: any[]) => {
+      const promises = results.map(async (article: Articles) => {
+        article.creator =
+          await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: any) => { return user; })
+
+        return article;
       })
+      Promise.all(promises).then((result: any) => res.status(200).json(result));
     })
+      .catch((error: any) => res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: error }));
   }
   else if (title && !first && !last && !user)
   {
-    articlesQueries.getOneArticleByTitleQuery(title).then(([[result]]: [[Articles]]) => {
-      if (result)
-      {
-        res.status(200).json(result)
-      } else
-      {
-        res.status(404).json({
-          message: ServerResponses.NOT_FOUND,
-          ServerDetails: ServerDetails.NO_DATA
-        })
-      }
-    }).catch((error: unknown) => {
-      console.error(error);
-      res.status(500).json({
-        message: ServerResponses.SERVER_ERROR,
-        detail: ServerDetails.ERROR_RETRIEVING
+    articlesQueries.getOneArticleByTitleQuery(title).then(([results]: any[]) => {
+      const promises = results.map(async (article: Articles) => {
+        article.creator =
+          await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: any) => { return user; })
+
+        return article;
       })
+      Promise.all(promises).then((result: any) => res.status(200).json(result));
     })
+      .catch((error: any) => res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: error }));
   }
   else if (user && !first && !last && !title)
   {
-    articlesQueries.getAllArticlesFromAnUserQuery(user).then(([results]: [Articles][]) => {
-      if (results.length)
-      {
-        res.status(200).json(results)
-      } else
-      {
-        res.status(404).json({
-          message: ServerResponses.NOT_FOUND,
-          ServerDetails: ServerDetails.NO_DATA
-        })
-      }
-    })
-      .catch((error: unknown) => {
-        console.error(error);
-        res.status(500).json({
-          message: ServerResponses.SERVER_ERROR,
-          detail: ServerDetails.ERROR_RETRIEVING
-        })
+    articlesQueries.getAllArticlesFromAnUserQuery(user).then(([results]: any[]) => {
+      const promises = results.map(async (article: Articles) => {
+        article.creator =
+          await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: any) => { return user; })
+
+        return article;
       })
+      Promise.all(promises).then((result: any) => res.status(200).json(result));
+    })
+      .catch((error: any) => res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: error }));
   }
   else if (!user && !first && !last && !title)
   {
@@ -74,7 +58,6 @@ const getAllArticles = async (req: express.Request, res: express.Response) => {
         const promises = results.map(async (article: Articles) => {
           article.creator =
             await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: any) => { return user; })
-
           return article;
         })
         Promise.all(promises).then((result: any) => res.status(200).json(result));

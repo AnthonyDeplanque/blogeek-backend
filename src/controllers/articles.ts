@@ -2,9 +2,9 @@ import * as Joi from 'joi';
 import * as express from "express";
 import { ServerDetails, ServerResponses } from '../config/serverResponses';
 import { Articles } from '../../Blogeek-library/models/Articles';
-import { generateId } from '../services/idGenerator';
+import { Users } from '../../Blogeek-library/models/Users';
 
-
+const generateId = require("../../Blogeek-library/services/idGenerator");
 const articlesQueries = require('../SQLqueries/articles');
 const articlesMiddlewares = require("../middlewares/articles");
 const usersQueries = require('../SQLqueries/users');
@@ -74,8 +74,14 @@ const getAllArticles = async (req: express.Request, res: express.Response) => {
 
 const getOneArticle = (req: express.Request, res: express.Response) => {
   const { id } = req.params;
-  articlesQueries.getOneArticleQuery(id).then(([[result]]: [[Articles]]) => {
-    res.status(200).json({ result });
+  articlesQueries.getOneArticleQuery(id).then(async ([[result]]: [[Articles]]) => {
+    const article = result;
+    const promise = new Promise(async (resolve, _reject) => {
+      article.creator =
+        await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: [[Users]]) => { return user })
+      resolve(article);
+    })
+    Promise.resolve(promise).then((result: any) => res.status(200).json(result))
   }).catch((error: unknown) => {
     console.error(error);
     res.status(500).json({
@@ -97,7 +103,7 @@ const postArticle = (req: express.Request, res: express.Response) => {
   {
     const newArticle = { id, id_user, title, subtitle, content, date_of_write };
     articlesQueries.postArticleQuery(newArticle).then(([[result]]: any) => {
-      res.status(401).json({ message: ServerResponses.REQUEST_OK, detail: ServerDetails.CREATION_OK, newArticle, result });
+      res.status(201).json({ message: ServerResponses.REQUEST_OK, detail: ServerDetails.CREATION_OK, newArticle, result });
     }).catch((error: unknown) => {
       console.error(error);
       res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: ServerDetails.ERROR_CREATION });
@@ -110,7 +116,7 @@ const postASubategoryForArticle = (req: express.Request, res: express.Response) 
   const { id_article, id_subcategory } = req.body;
   const categoryForArticle = { id, id_article, id_subcategory }
   articlesQueries.postASubategoryForArticle(categoryForArticle).then(([[results]]: any) => {
-    res.status(401).json({ message: ServerResponses.REQUEST_OK, detail: ServerDetails.CREATION_OK, categoryForArticle, results });
+    res.status(201).json({ message: ServerResponses.REQUEST_OK, detail: ServerDetails.CREATION_OK, categoryForArticle, results });
   }).catch((error: unknown) => {
     console.error(error);
     res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: ServerDetails.ERROR_CREATION });

@@ -4,8 +4,7 @@ import { Users } from '../../Blogeek-library/models/Users';
 
 import { ServerDetails, ServerResponses } from '../config/serverResponses';
 
-import { generateId } from '../services/idGenerator';
-
+const generateId = require("../../Blogeek-library/services/idGenerator");
 const usersQueries = require('../SQLqueries/users');
 const rolesToUsersQueries = require('../SQLqueries/rolesToUsers');
 const rolesQueries = require('../SQLqueries/roles');

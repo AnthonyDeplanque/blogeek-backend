@@ -1,12 +1,11 @@
 import * as express from 'express';
 import * as Joi from 'joi';
 import * as argon2 from 'argon2';
-import { generateId } from '../services/idGenerator';
 import { ServerDetails, ServerResponses } from '../config/serverResponses';
 import { Users } from '../../Blogeek-library/models/Users';
 import { ROLE, Roles } from '../../Blogeek-library/models/Role';
 
-
+const generateId = require("../../Blogeek-library/services/idGenerator");
 const usersQueries = require('../SQLqueries/users');
 const rolesToUsersQueries = require('../SQLqueries/rolesToUsers');
 const rolesQueries = require('../SQLqueries/roles');
@@ -52,7 +51,7 @@ const postUser = async (req: express.Request, res: express.Response) => {
               usersQueries.addUserQuery(newUser).then(([_result]: [Users]) => {
                 rolesToUsersQueries.addRoleToUserQuery({ id: generateId(), id_user: id, id_role: role.id }).then(([[results]]: [[Roles]]) => {
                   const name = role.name;
-                  res.status(201).json({ ...newUser, role: [name], roleToUser: results, response: { message: ServerResponses.REQUEST_OK, detail: ServerDetails.CREATION_OK } })
+                  res.status(201).json({ ...newUser, roles: [name], roleToUser: results, response: { message: ServerResponses.REQUEST_OK, detail: ServerDetails.CREATION_OK } })
                 }).catch((error: unknown) => {
                   console.error(error);
                   res.status(500).json({ message: ServerResponses.BAD_REQUEST, detail: ServerDetails.ERROR_CREATION, step: 'set role for user' })
@@ -198,7 +197,7 @@ const getAllUsers = async (req: express.Request, res: express.Response) => {
     usersQueries.getSelectedUsersQuery(+first, +last)
       .then(([results]: any[]) => {
         const promises = results.map(async (user: any) => {
-          user.role = await rolesToUsersQueries.getRolesForUserQuery(user.id).then(([role]: any) => {
+          user.roles = await rolesToUsersQueries.getRolesForUserQuery(user.id).then(([role]: any) => {
             const roles = role.map((r: any) => {
               const { name } = r; return name;
             })
@@ -215,7 +214,7 @@ const getAllUsers = async (req: express.Request, res: express.Response) => {
     usersQueries.getUsersQuery()
       .then(([results]: any[]) => {
         const promises = results.map(async (user: any) => {
-          user.role =
+          user.roles =
             await rolesToUsersQueries.getRolesForUserQuery(user.id).then(([role]: any) => {
               const roles = role.map((roleName: Roles) => {
                 const { name } = roleName; return name;

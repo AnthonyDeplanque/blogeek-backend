@@ -3,7 +3,7 @@ import {
   PASSWORD_ROUTE,
   ROLE_FOR_USER_API_ROUTE,
   TOKEN_ROUTE
-} from "../../config/apiRoutes";
+} from "../../Blogeek-library/config/apiRoutes";
 import * as express from 'express';
 
 

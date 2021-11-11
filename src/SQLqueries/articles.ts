@@ -1,5 +1,5 @@
 import * as mysql2 from 'mysql2';
-import { Articles } from '../../Blogeek-library/models/Articles';
+import { Articles } from '../Blogeek-library/models/Articles';
 
 
 const connection = require('../db-config');

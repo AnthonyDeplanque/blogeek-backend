@@ -1,9 +1,9 @@
 import * as Joi from 'joi';
 import * as express from "express";
-import { Categories, SubCategories } from '../../Blogeek-library/models/Categories';
-import { ServerDetails, ServerResponses } from '../config/serverResponses';
+import { Categories, SubCategories } from '../Blogeek-library/models/Categories';
+import { ServerDetails, ServerResponses } from '../Blogeek-library/config/serverResponses';
 
-const generateId = require("../../Blogeek-library/services/idGenerator");
+const generateId = require("../Blogeek-library/services/idGenerator");
 const categoriesMiddlewares = require('../middlewares/categories');
 const categoriesQueries = require('../SQLqueries/categories');
 

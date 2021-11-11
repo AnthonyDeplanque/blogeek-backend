@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { ARTICLES_API_ROUTE, CATEGORIES_API_ROUTE, SUBCATEGORIES_API_ROUTE, USERS_API_ROUTE } from '../config/apiRoutes';
+import { ARTICLES_API_ROUTE, CATEGORIES_API_ROUTE, SUBCATEGORIES_API_ROUTE, USERS_API_ROUTE } from '../Blogeek-library/config/apiRoutes';
 const usersRouter = require('./routers/users');
 const categoriesRouter = require('./routers/categories');
 const subcategoriesRouter = require('./routers/subCategories');

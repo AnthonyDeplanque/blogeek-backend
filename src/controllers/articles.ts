@@ -1,10 +1,10 @@
 import * as Joi from 'joi';
 import * as express from "express";
-import { ServerDetails, ServerResponses } from '../config/serverResponses';
-import { Articles } from '../../Blogeek-library/models/Articles';
-import { Users } from '../../Blogeek-library/models/Users';
+import { ServerDetails, ServerResponses } from '../Blogeek-library/config/serverResponses';
+import { Articles } from '../Blogeek-library/models/Articles';
+import { Users } from '../Blogeek-library/models/Users';
 
-const generateId = require("../../Blogeek-library/services/idGenerator");
+const generateId = require("../Blogeek-library/services/idGenerator");
 const articlesQueries = require('../SQLqueries/articles');
 const articlesMiddlewares = require("../middlewares/articles");
 const usersQueries = require('../SQLqueries/users');
@@ -163,9 +163,11 @@ const deleteArticle = (req: express.Request, res: express.Response) => {
   articlesQueries.deleteArticleQuery(id).then(([result]: any) => {
     if (result.affectedRows)
     {
+      const categoriesDeleted = articlesQueries.deleteCategoryForArticleQuery(id).then(([result]: any) => { result.affectedRows })
       res.status(200).json({
         message: ServerResponses.REQUEST_OK,
-        detail: ServerDetails.DELETE_OK
+        detail: ServerDetails.DELETE_OK,
+        categoriesDeleted
       })
     } else
     {

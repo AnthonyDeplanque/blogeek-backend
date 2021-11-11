@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS USERS(
   `email` VARCHAR(250) NOT NULL,
   `hashed_password` VARCHAR(100) NOT NULL,
   `inscription_time` BIGINT NOT NULL,
-  `avatar` VARCHAR(250),
-  `biography` VARCHAR(250),
+  `avatar` TEXT,
+  `biography` TEXT,
   PRIMARY KEY (`id`)
 );
 

@@ -4,7 +4,7 @@ import path = require('path');
 
 
 
-import { FILE_STORAGE_ROUTE } from './config/apiRoutes';
+import { FILE_STORAGE_ROUTE } from '../src/Blogeek-library/config/apiRoutes';
 import { router } from './routes/index';
 const express = require('express');
 const app = express();

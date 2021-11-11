@@ -1,4 +1,4 @@
-import { Users } from "../../Blogeek-library/models/Users"
+import { Users } from "../Blogeek-library/models/Users"
 import * as mysql2 from 'mysql2';
 
 const connection = require('../db-config');

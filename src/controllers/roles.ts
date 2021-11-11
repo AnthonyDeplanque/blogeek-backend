@@ -1,10 +1,10 @@
 import * as express from 'express';
-import { ROLE, Roles } from '../../Blogeek-library/models/Role';
-import { Users } from '../../Blogeek-library/models/Users';
+import { ROLE, Roles } from '../Blogeek-library/models/Role';
+import { Users } from '../Blogeek-library/models/Users';
 
-import { ServerDetails, ServerResponses } from '../config/serverResponses';
+import { ServerDetails, ServerResponses } from '../Blogeek-library/config/serverResponses';
 
-const generateId = require("../../Blogeek-library/services/idGenerator");
+const generateId = require("../Blogeek-library/services/idGenerator");
 const usersQueries = require('../SQLqueries/users');
 const rolesToUsersQueries = require('../SQLqueries/rolesToUsers');
 const rolesQueries = require('../SQLqueries/roles');

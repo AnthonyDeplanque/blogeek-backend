@@ -1,16 +1,16 @@
 import * as express from 'express';
 import * as Joi from 'joi';
 import * as argon2 from 'argon2';
-import { ServerDetails, ServerResponses } from '../config/serverResponses';
-import { Users } from '../../Blogeek-library/models/Users';
-import { ROLE, Roles } from '../../Blogeek-library/models/Role';
+import { ServerDetails, ServerResponses } from '../Blogeek-library/config/serverResponses';
+import { Users } from '../Blogeek-library/models/Users';
+import { ROLE, Roles } from '../Blogeek-library/models/Role';
 
-const generateId = require("../../Blogeek-library/services/idGenerator");
+const generateId = require("../Blogeek-library/services/idGenerator");
 const usersQueries = require('../SQLqueries/users');
 const rolesToUsersQueries = require('../SQLqueries/rolesToUsers');
 const rolesQueries = require('../SQLqueries/roles');
 const usersMiddlewares = require('../middlewares/users');
-const JWTServices = require('../services/jwt');
+const JWTServices = require('../Blogeek-library/services/jwt')
 
 
 const postUser = async (req: express.Request, res: express.Response) => {

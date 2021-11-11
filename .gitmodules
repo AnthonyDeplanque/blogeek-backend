@@ -1,3 +1,3 @@
-[submodule "Blogeek-library"]
-	path = Blogeek-library
+[submodule "src/Blogeek-library"]
+	path = src/Blogeek-library
 	url = git@github.com:AnthonyDeplanque/Blogeek-library.git

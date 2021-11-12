@@ -18,7 +18,7 @@ const getAllArticles = async (req: express.Request, res: express.Response) => {
       const promises = results.map(async (article: Articles) => {
         article.creator =
           await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: any) => { return user; })
-
+        article.subcategories = await articlesQueries.getSubcategoriesForArticleQuery(article.id).then(([subcategories]: any) => { return subcategories });
         return article;
       })
       Promise.all(promises).then((result: any) => res.status(200).json(result));
@@ -31,7 +31,7 @@ const getAllArticles = async (req: express.Request, res: express.Response) => {
       const promises = results.map(async (article: Articles) => {
         article.creator =
           await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: any) => { return user; })
-
+        article.subcategories = await articlesQueries.getSubcategoriesForArticleQuery(article.id).then(([subcategories]: any) => { return subcategories });
         return article;
       })
       Promise.all(promises).then((result: any) => res.status(200).json(result));
@@ -44,7 +44,7 @@ const getAllArticles = async (req: express.Request, res: express.Response) => {
       const promises = results.map(async (article: Articles) => {
         article.creator =
           await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: any) => { return user; })
-
+        article.subcategories = await articlesQueries.getSubcategoriesForArticleQuery(article.id).then(([subcategories]: any) => { return subcategories });
         return article;
       })
       Promise.all(promises).then((result: any) => res.status(200).json(result));
@@ -58,6 +58,8 @@ const getAllArticles = async (req: express.Request, res: express.Response) => {
         const promises = results.map(async (article: Articles) => {
           article.creator =
             await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: any) => { return user; })
+          article.subcategories =
+            await articlesQueries.getSubcategoriesForArticleQuery(article.id).then(([subcategories]: any) => subcategories);
           return article;
         })
         Promise.all(promises).then((result: any) => res.status(200).json(result));
@@ -77,8 +79,9 @@ const getOneArticle = (req: express.Request, res: express.Response) => {
   articlesQueries.getOneArticleQuery(id).then(async ([[result]]: [[Articles]]) => {
     const article = result;
     const promise = new Promise(async (resolve, _reject) => {
-      article.creator =
-        await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: [[Users]]) => { return user })
+      article.creator = await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: [[Users]]) => { return user });
+      article.subcategories = await articlesQueries.getSubcategoriesForArticleQuery(article.id).then(([subcategories]: any) => { return subcategories });
+
       resolve(article);
     })
     Promise.resolve(promise).then((result: any) => res.status(200).json(result))
@@ -115,7 +118,7 @@ const postASubategoryForArticle = (req: express.Request, res: express.Response) 
   const id = generateId();
   const { id_article, id_subcategory } = req.body;
   const categoryForArticle = { id, id_article, id_subcategory }
-  articlesQueries.postASubategoryForArticle(categoryForArticle).then(([[results]]: any) => {
+  articlesQueries.postCategoryForArticleQuery(categoryForArticle).then(([[results]]: any) => {
     res.status(201).json({ message: ServerResponses.REQUEST_OK, detail: ServerDetails.CREATION_OK, categoryForArticle, results });
   }).catch((error: unknown) => {
     console.error(error);
@@ -158,12 +161,12 @@ const updateArticle = (req: express.Request, res: express.Response) => {
   }
 }
 
-const deleteArticle = (req: express.Request, res: express.Response) => {
+const deleteArticle = async (req: express.Request, res: express.Response) => {
   const { id } = req.params;
-  articlesQueries.deleteArticleQuery(id).then(([result]: any) => {
+  articlesQueries.deleteArticleQuery(id).then(async ([result]: any) => {
     if (result.affectedRows)
     {
-      const categoriesDeleted = articlesQueries.deleteCategoryForArticleQuery(id).then(([result]: any) => { result.affectedRows })
+      const categoriesDeleted = await articlesQueries.deleteCategoryForArticleQuery(id).then(([result]: any) => result.affectedRows)
       res.status(200).json({
         message: ServerResponses.REQUEST_OK,
         detail: ServerDetails.DELETE_OK,

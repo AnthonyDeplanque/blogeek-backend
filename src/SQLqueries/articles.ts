@@ -25,6 +25,14 @@ const getAllArticlesFromAnUserQuery = (id: string) => {
   return db.query('SELECT * FROM ARTICLES WHERE id_user = ? ORDER BY date_of_write DESC', [id]);
 }
 
+const getSubcategoriesForArticleQuery = (id: string) => {
+  return db.query(`
+  SELECT ahc.id_subcategory, s.title FROM ARTICLE_HAS_CATEGORIES AS ahc 
+  INNER JOIN SUBCATEGORIES AS s ON ahc.id_subcategory=s.id
+  WHERE ahc.id_article=?`
+    , [id])
+}
+
 const getAllArticlesFromACategoryQuery = (id: string) => {
   return db.query(`
     SELECT a.id, a.title, a.id_user, a.subtitle, a.content, a.date_of_write
@@ -50,7 +58,7 @@ const updateArticleQuery = (id: string, values: Articles) => {
 }
 
 const deleteArticleQuery = (id: string) => {
-  return db.query('DELETE FROM ARTICLE WHERE id = ?', [id]);
+  return db.query('DELETE FROM ARTICLES WHERE id = ?', [id]);
 }
 
 const deleteCategoryForArticleQuery = (id: string) => {
@@ -69,5 +77,6 @@ module.exports = {
   updateArticleQuery,
   updateCategoryForArticleQuery,
   deleteArticleQuery,
-  deleteCategoryForArticleQuery
+  deleteCategoryForArticleQuery,
+  getSubcategoriesForArticleQuery
 }

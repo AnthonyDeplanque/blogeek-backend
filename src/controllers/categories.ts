@@ -11,7 +11,7 @@ const getCategories = (_req: express.Request, res: express.Response) => {
   categoriesQueries.getCategoriesQuery().then(([results]: any[]) => {
     const categories = results.map(async (cat: Categories) => {
       const subCat = await categoriesQueries.getSubCategoriesFromIdCategoryQuery(cat.id).then(([results]: any[]) => {
-        const subCategories: string[] = results.map((sub: SubCategories) => sub.title);
+        const subCategories: string[] = results.map((sub: SubCategories) => { const { title, id } = sub; return { id, title } });
         return subCategories;
       })
       cat.sub_categories = subCat;
@@ -34,7 +34,7 @@ const getOneCategory = (req: express.Request, res: express.Response) => {
   const promise = categoriesQueries.getOneCategoryQuery(id).then(async ([[result]]: [[Categories]]) => {
     const category: Categories = result;
     await categoriesQueries.getSubCategoriesFromIdCategoryQuery(id).then(([results]: any) => {
-      const subCategories: string[] = results.map((sub: SubCategories) => sub.title);
+      const subCategories: string[] = results.map((sub: SubCategories) => { const { title, id } = sub; return { id, title } });
       return subCategories;
     }).then((results: SubCategories[]) => { category.sub_categories = results })
     return category;

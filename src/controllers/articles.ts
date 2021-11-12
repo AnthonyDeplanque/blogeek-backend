@@ -3,10 +3,12 @@ import * as express from "express";
 import { ServerDetails, ServerResponses } from '../Blogeek-library/config/serverResponses';
 import { Articles } from '../Blogeek-library/models/Articles';
 import { Users } from '../Blogeek-library/models/Users';
+import { Comments } from '../Blogeek-library/models/interactions/comments';
 
 const generateId = require("../Blogeek-library/services/idGenerator");
 const articlesQueries = require('../SQLqueries/articles');
 const articlesMiddlewares = require("../middlewares/articles");
+const commentsQueries = require('../SQLqueries/comments');
 const usersQueries = require('../SQLqueries/users');
 
 const getAllArticles = async (req: express.Request, res: express.Response) => {
@@ -19,6 +21,15 @@ const getAllArticles = async (req: express.Request, res: express.Response) => {
         article.creator =
           await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: any) => { return user; })
         article.subcategories = await articlesQueries.getSubcategoriesForArticleQuery(article.id).then(([subcategories]: any) => { return subcategories });
+
+        article.comments = await commentsQueries.getAllCommentsFromAnArticleQuery(article.id).then(([comments]: [Comments][]) => {
+          const promiseComments = comments.map(async (comment: Comments) => {
+            comment.creator = await usersQueries.getOneUserQueryById(comment.id_user).then(([[user]]: [[any]]) => { return user; })
+            return comment;
+          })
+          return Promise.all([promiseComments]).then((res: any) => res)
+        })
+
         return article;
       })
       Promise.all(promises).then((result: any) => res.status(200).json(result));
@@ -32,6 +43,15 @@ const getAllArticles = async (req: express.Request, res: express.Response) => {
         article.creator =
           await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: any) => { return user; })
         article.subcategories = await articlesQueries.getSubcategoriesForArticleQuery(article.id).then(([subcategories]: any) => { return subcategories });
+
+        article.comments = await commentsQueries.getAllCommentsFromAnArticleQuery(article.id).then(([comments]: [Comments][]) => {
+          const promiseComments = comments.map(async (comment: Comments) => {
+            comment.creator = await usersQueries.getOneUserQueryById(comment.id_user).then(([[user]]: [[any]]) => { return user; })
+            return comment;
+          })
+          return Promise.all([promiseComments]).then((res: any) => res)
+        })
+
         return article;
       })
       Promise.all(promises).then((result: any) => res.status(200).json(result));
@@ -45,6 +65,15 @@ const getAllArticles = async (req: express.Request, res: express.Response) => {
         article.creator =
           await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: any) => { return user; })
         article.subcategories = await articlesQueries.getSubcategoriesForArticleQuery(article.id).then(([subcategories]: any) => { return subcategories });
+
+        article.comments = await commentsQueries.getAllCommentsFromAnArticleQuery(article.id).then(([comments]: [Comments][]) => {
+          const promiseComments = comments.map(async (comment: Comments) => {
+            comment.creator = await usersQueries.getOneUserQueryById(comment.id_user).then(([[user]]: [[any]]) => { return user; })
+            return comment;
+          })
+          return Promise.all([promiseComments]).then((res: any) => res)
+        })
+
         return article;
       })
       Promise.all(promises).then((result: any) => res.status(200).json(result));
@@ -56,10 +85,17 @@ const getAllArticles = async (req: express.Request, res: express.Response) => {
     articlesQueries.getArticlesQuery()
       .then(([results]: any[]) => {
         const promises = results.map(async (article: Articles) => {
-          article.creator =
-            await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: any) => { return user; })
-          article.subcategories =
-            await articlesQueries.getSubcategoriesForArticleQuery(article.id).then(([subcategories]: any) => subcategories);
+          article.creator = await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: any) => { return user; })
+          article.subcategories = await articlesQueries.getSubcategoriesForArticleQuery(article.id).then(([subcategories]: any) => subcategories);
+
+          article.comments = await commentsQueries.getAllCommentsFromAnArticleQuery(article.id).then(([comments]: [Comments][]) => {
+            const promiseComments = comments.map(async (comment: Comments) => {
+              comment.creator = await usersQueries.getOneUserQueryById(comment.id_user).then(([[user]]: [[any]]) => { return user; })
+              return comment;
+            })
+            return Promise.all([promiseComments]).then((res: any) => res)
+          })
+
           return article;
         })
         Promise.all(promises).then((result: any) => res.status(200).json(result));
@@ -81,6 +117,14 @@ const getOneArticle = (req: express.Request, res: express.Response) => {
     const promise = new Promise(async (resolve, _reject) => {
       article.creator = await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: [[Users]]) => { return user });
       article.subcategories = await articlesQueries.getSubcategoriesForArticleQuery(article.id).then(([subcategories]: any) => { return subcategories });
+
+      article.comments = await commentsQueries.getAllCommentsFromAnArticleQuery(article.id).then(([comments]: [Comments][]) => {
+        const promiseComments = comments.map(async (comment: Comments) => {
+          comment.creator = await usersQueries.getOneUserQueryById(comment.id_user).then(([[user]]: [[any]]) => { return user; })
+          return comment;
+        })
+        return Promise.all([promiseComments]).then((res: any) => res)
+      })
 
       resolve(article);
     })
@@ -166,11 +210,13 @@ const deleteArticle = async (req: express.Request, res: express.Response) => {
   articlesQueries.deleteArticleQuery(id).then(async ([result]: any) => {
     if (result.affectedRows)
     {
-      const categoriesDeleted = await articlesQueries.deleteCategoryForArticleQuery(id).then(([result]: any) => result.affectedRows)
+      const categoriesDeleted = await articlesQueries.deleteCategoryForArticleQuery(id).then(([result]: any) => result.affectedRows);
+      const commentsDeleted = await commentsQueries.deleteCommentByArticleQuery(id).then(([result]: any) => result.affectedRows);
       res.status(200).json({
         message: ServerResponses.REQUEST_OK,
         detail: ServerDetails.DELETE_OK,
-        categoriesDeleted
+        categoriesDeleted,
+        commentsDeleted
       })
     } else
     {

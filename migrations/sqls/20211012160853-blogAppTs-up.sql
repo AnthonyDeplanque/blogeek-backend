@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS COMMENTS(
   `id` VARCHAR(20) NOT NULL,
   `id_article` VARCHAR(20) NOT NULL,
   `id_user` VARCHAR(20) NOT NULL,
+  `date_of_write` BIGINT NOT NULL,
   `content` MEDIUMTEXT NOT NULL,
   PRIMARY KEY (`id`)
 );

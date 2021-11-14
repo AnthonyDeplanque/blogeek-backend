@@ -21,7 +21,6 @@ const getAllArticles = async (req: express.Request, res: express.Response) => {
         article.creator =
           await usersQueries.getOneUserQueryById(article.id_user).then(([[user]]: any) => { return user; })
         article.subcategories = await articlesQueries.getSubcategoriesForArticleQuery(article.id).then(([subcategories]: any) => { return subcategories });
-
         article.comments = await commentsQueries.getAllCommentsFromAnArticleQuery(article.id).then(([comments]: [Comments][]) => {
           const promiseComments = comments.map(async (comment: Comments) => {
             comment.creator = await usersQueries.getOneUserQueryById(comment.id_user).then(([[user]]: [[any]]) => { return user; })
@@ -182,7 +181,7 @@ const updateArticle = (req: express.Request, res: express.Response) => {
       if (result)
       {
         articlesQueries.updateArticleQuery(req.body).then(([[result]]: any) => {
-          res.status(403).json({
+          res.status(204).json({
             message: ServerResponses.REQUEST_OK,
             detail: ServerDetails.UPDATE_OK,
             result
@@ -194,6 +193,9 @@ const updateArticle = (req: express.Request, res: express.Response) => {
             detail: ServerDetails.ERROR_UPDATE,
           })
         })
+      } else
+      {
+        res.status(404).json({ message: ServerResponses.NOT_FOUND, detail: ServerDetails.NO_DATA });
       }
     }).catch((error: unknown) => {
       console.error(error);

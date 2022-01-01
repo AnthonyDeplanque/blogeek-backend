@@ -14,8 +14,8 @@ const postUserValidationObject = {
 }
 
 const updateUserValidationObject = {
-  first_name: Joi.string().max(50),
-  last_name: Joi.string().max(50),
+  first_name: Joi.string().max(50).allow(null, ''),
+  last_name: Joi.string().max(50).allow(null, ''),
   avatar: Joi.string().max(TEXT).allow(null, ''),
   biography: Joi.string().max(TEXT).allow(null, ''),
 }

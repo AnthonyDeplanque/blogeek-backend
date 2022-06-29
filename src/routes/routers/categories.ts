@@ -12,3 +12,4 @@ route.delete('/:id', deleteCategory);
 
 
 module.exports = route;
+

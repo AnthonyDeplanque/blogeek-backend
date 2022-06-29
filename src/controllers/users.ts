@@ -75,7 +75,9 @@ const postUser = async (req: express.Request, res: express.Response) => {
 
 const loginUser = (req: express.Request, res: express.Response) => {
   const { nick_name, password } = req.body;
-  const { error } = Joi.object(usersMiddlewares.loginUserValidationObject).validate({ nick_name, password }, { abortEarly: false });
+  const { error } = Joi.object(
+    usersMiddlewares.loginUserValidationObject)
+    .validate({ nick_name, password }, { abortEarly: false });
   if (error) {
     console.error(error);
     res.status(422).json({ validationError: error.details });

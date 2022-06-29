@@ -15,6 +15,11 @@ const JWTServices = require('../Blogeek-library/services/jwt')
 const articlesQueries = require('../SQLqueries/articles');
 
 
+const getArticlesList = async (data: any) => await articlesQueries.getAllArticlesFromAnUserQuery(data.id)
+  .then(([articlesList]: any[]) => {
+    return articlesList;
+  })
+
 const postUser = async (req: express.Request, res: express.Response) => {
   const { nick_name, first_name, last_name, email, password, avatar, biography } = req.body;
   if (!password) {
@@ -89,9 +94,7 @@ const loginUser = (req: express.Request, res: express.Response) => {
             if (match) {
               usersQueries.getOneUserQueryByNickname(nick_name).then(async ([[results]]: any) => {
                 const token = JWTServices.createToken(results.email);
-                const articles: Articles[] = await articlesQueries.getAllArticlesFromAnUserQuery(results.id).then(([articlesList]: any[]) => {
-                  return articlesList;
-                });
+                const articles: Articles[] = await getArticlesList(results);
                 const roles: string[] = await rolesToUsersQueries.getRolesForUserQuery(results.id).then(([roles]: any[]) => roles.map((role: Roles) => role.name)).catch((error: unknown) => {
                   console.error(error);
                   res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: ServerDetails.ERROR_RETRIEVING, step: 'UserHasRole' });
@@ -125,9 +128,7 @@ const getUserProfile = (req: express.Request, res: express.Response) => {
     if (timeStamp < exp) {
       usersQueries.getOneUserQueryByEmail(data)
         .then(async ([[results]]: [[Users]]) => {
-          const articles: Articles[] = await articlesQueries.getAllArticlesFromAnUserQuery(results.id).then(([articlesList]: any[]) => {
-            return articlesList;
-          });
+          const articles: Articles[] = await getArticlesList(results);
           const roles: string[] = await rolesToUsersQueries.getRolesForUserQuery(results.id).then(([rolesList]: any[]) => rolesList.map((role: Roles) => role.name)).catch((error: unknown) => {
             console.error(error)
             res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: ServerDetails.ERROR_RETRIEVING, step: 'UsersHasRole' });
@@ -155,10 +156,8 @@ const getAllUsers = async (req: express.Request, res: express.Response) => {
   const { first, last, email, nickname } = req.query;
   if (nickname && !email && !first && !last) {
     usersQueries.getOneUserQueryByNickname(nickname).then(async ([[result]]: [[Users]]) => {
-      await articlesQueries.getAllArticlesFromAnUserQuery(result.id).then(([articlesList]: any[]) => {
-        const articles: Articles[] = articlesList;
-        result.articles = articles;
-      });
+      const articles: Articles[] = await getArticlesList(result);
+      result.articles = articles;
       await rolesToUsersQueries.getRolesForUserQuery(result.id).then(([roleList]: any[]) => {
         const roles: string[] = roleList.map((role: Roles) => role.name);
         res.status(200).json({ result, roles });
@@ -169,10 +168,8 @@ const getAllUsers = async (req: express.Request, res: express.Response) => {
   }
   else if (email && !nickname && !first && !last) {
     usersQueries.getOneUserQueryByEmail(email).then(async ([[result]]: [[Users]]) => {
-      await articlesQueries.getAllArticlesFromAnUserQuery(result.id).then(([articlesList]: any[]) => {
-        const articles: Articles[] = articlesList;
-        result.articles = articles;
-      });
+      const articles: Articles[] = await getArticlesList(result);
+      result.articles = articles;
       await rolesToUsersQueries.getRolesForUserQuery(result.id).then(([roleList]: any[]) => {
         const roles: string[] = roleList.map((role: Roles) => role.name);
         res.status(200).json({ result, roles });
@@ -185,9 +182,7 @@ const getAllUsers = async (req: express.Request, res: express.Response) => {
     usersQueries.getSelectedUsersQuery(+first, +last)
       .then(([results]: any[]) => {
         const promises = results.map(async (user: any) => {
-          user.articles = await articlesQueries.getAllArticlesFromAnUserQuery(user.id).then(([articlesList]: any[]) => {
-            return articlesList;
-          });
+          user.articles = await getArticlesList(user);
           user.roles = await rolesToUsersQueries.getRolesForUserQuery(user.id).then(([role]: any) => {
             const roles = role.map((r: any) => {
               const { name } = r; return name;
@@ -204,9 +199,7 @@ const getAllUsers = async (req: express.Request, res: express.Response) => {
     usersQueries.getUsersQuery()
       .then(([results]: any[]) => {
         const promises = results.map(async (user: any) => {
-          user.articles = await articlesQueries.getAllArticlesFromAnUserQuery(user.id).then(([articlesList]: any[]) => {
-            return articlesList;
-          });
+          user.articles = await getArticlesList(user);
           user.roles =
             await rolesToUsersQueries.getRolesForUserQuery(user.id).then(([role]: any) => {
               const roles = role.map((roleName: Roles) => {
@@ -230,9 +223,7 @@ const getOneUserById = async (req: express.Request, res: express.Response) => {
     .getOneUserQueryById(id)
     .then(async ([[result]]: [[Users]]) => {
       if (result) {
-        result.articles = await articlesQueries.getAllArticlesFromAnUserQuery(result.id).then(([articlesList]: any[]) => {
-          return articlesList;
-        });
+        result.articles = await getArticlesList(result);
         rolesToUsersQueries.getRolesForUserQuery(result.id).then(([roleList]: any[]) => {
           const roles: [] = roleList.map((role: Roles) => role.name);
           res.status(200).json({ ...result, roles });

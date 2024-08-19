@@ -1,6 +1,6 @@
-import * as express from 'express';
-import * as Joi from 'joi';
-import * as argon2 from 'argon2';
+import express from 'express';
+import Joi from 'joi';
+import argon2 from 'argon2';
 import { ServerDetails, ServerResponses } from '../Blogeek-library/config/serverResponses';
 import { Users } from '../Blogeek-library/models/Users';
 import { ROLE, Roles } from '../Blogeek-library/models/Role';
@@ -11,14 +11,14 @@ const usersQueries = require('../SQLqueries/users');
 const rolesToUsersQueries = require('../SQLqueries/rolesToUsers');
 const rolesQueries = require('../SQLqueries/roles');
 const usersMiddlewares = require('../middlewares/users');
-const JWTServices = require('../Blogeek-library/services/jwt')
+const JWTServices = require('../Blogeek-library/services/jwt');
 const articlesQueries = require('../SQLqueries/articles');
 
 
 const getArticlesList = async (data: any) => await articlesQueries.getAllArticlesFromAnUserQuery(data.id)
   .then(([articlesList]: any[]) => {
     return articlesList;
-  })
+  });
 
 const postUser = async (req: express.Request, res: express.Response) => {
   const { nick_name, first_name, last_name, email, password, avatar, biography } = req.body;
@@ -39,44 +39,44 @@ const postUser = async (req: express.Request, res: express.Response) => {
   } else {
     usersQueries.getOneUserQueryByEmail(email).then(([results]: [Users][]) => {
       if (results.length) {
-        res.status(409).json({ message: ServerResponses.CONFLICT, detail: ServerDetails.EMAIL_ALREADY_USED })
+        res.status(409).json({ message: ServerResponses.CONFLICT, detail: ServerDetails.EMAIL_ALREADY_USED });
       } else {
         usersQueries.getOneUserQueryByNickname(nick_name).then(([results]: [Users][]) => {
           if (results.length) {
-            res.status(409).json({ message: ServerResponses.CONFLICT, detail: ServerDetails.NICKNAME_ALREADY_USED })
+            res.status(409).json({ message: ServerResponses.CONFLICT, detail: ServerDetails.NICKNAME_ALREADY_USED });
           } else {
-            const newUser = { id, nick_name, first_name, last_name, email, hashed_password, inscription_time, avatar, biography }
+            const newUser = { id, nick_name, first_name, last_name, email, hashed_password, inscription_time, avatar, biography };
             rolesQueries.getOneRoleQueryByName(ROLE.ROLE_USER).then(([[results]]: [[Roles]]) => {
               const role = results;
               usersQueries.addUserQuery(newUser).then(([_result]: [Users]) => {
                 rolesToUsersQueries.addRoleToUserQuery({ id: generateId(), id_user: id, id_role: role.id }).then(([[results]]: [[Roles]]) => {
                   const name = role.name;
-                  res.status(201).json({ ...newUser, roles: [name], roleToUser: results, response: { message: ServerResponses.REQUEST_OK, detail: ServerDetails.CREATION_OK } })
+                  res.status(201).json({ ...newUser, roles: [name], roleToUser: results, response: { message: ServerResponses.REQUEST_OK, detail: ServerDetails.CREATION_OK } });
                 }).catch((error: unknown) => {
                   console.error(error);
-                  res.status(500).json({ message: ServerResponses.BAD_REQUEST, detail: ServerDetails.ERROR_CREATION, step: 'set role for user' })
+                  res.status(500).json({ message: ServerResponses.BAD_REQUEST, detail: ServerDetails.ERROR_CREATION, step: 'set role for user' });
                 });
               }).catch((err: unknown) => {
                 console.error(err);
-                res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: ServerDetails.ERROR_CREATION })
+                res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: ServerDetails.ERROR_CREATION });
               });
             }).catch((error: unknown) => {
               console.error(error);
-              res.status(500).json({ message: ServerResponses.BAD_REQUEST, detail: ServerDetails.ERROR_RETRIEVING, step: 'get role by name' })
+              res.status(500).json({ message: ServerResponses.BAD_REQUEST, detail: ServerDetails.ERROR_RETRIEVING, step: 'get role by name' });
             });
           }
         }).catch((err: unknown) => {
           console.error(err);
-          res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: ServerDetails.ERROR_RETRIEVING })
+          res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: ServerDetails.ERROR_RETRIEVING });
         });
       }
     }).catch((err: unknown) => {
       console.error(err);
-      res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: ServerDetails.ERROR_RETRIEVING })
+      res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: ServerDetails.ERROR_RETRIEVING });
     });
   }
 
-}
+};
 
 const loginUser = (req: express.Request, res: express.Response) => {
   const { nick_name, password } = req.body;
@@ -117,7 +117,7 @@ const loginUser = (req: express.Request, res: express.Response) => {
         res.status(204).json({ message: ServerResponses.ACCESS_DENIED, detail: ServerDetails.CHECK_CREDENTIALS });
       });
   }
-}
+};
 
 const getUserProfile = (req: express.Request, res: express.Response) => {
   const { token } = req.body;
@@ -130,9 +130,9 @@ const getUserProfile = (req: express.Request, res: express.Response) => {
         .then(async ([[results]]: [[Users]]) => {
           const articles: Articles[] = await getArticlesList(results);
           const roles: string[] = await rolesToUsersQueries.getRolesForUserQuery(results.id).then(([rolesList]: any[]) => rolesList.map((role: Roles) => role.name)).catch((error: unknown) => {
-            console.error(error)
+            console.error(error);
             res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: ServerDetails.ERROR_RETRIEVING, step: 'UsersHasRole' });
-          })
+          });
           res.status(200).json({ ...results, roles, articles, expirationTimestamp: exp * 1000, message: ServerResponses.REQUEST_OK });
         })
         .catch((error: unknown) => {
@@ -146,7 +146,7 @@ const getUserProfile = (req: express.Request, res: express.Response) => {
     console.error(error);
     res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: ServerDetails.INVALID_TOKEN });
   }
-}
+};
 
 
 
@@ -161,9 +161,9 @@ const getAllUsers = async (req: express.Request, res: express.Response) => {
       await rolesToUsersQueries.getRolesForUserQuery(result.id).then(([roleList]: any[]) => {
         const roles: string[] = roleList.map((role: Roles) => role.name);
         res.status(200).json({ result, roles });
-      }).catch((error: unknown) => { res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: error }); })
+      }).catch((error: unknown) => { res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: error }); });
     }).catch((_error: unknown) => {
-      res.status(204).json({ message: ServerResponses.NOT_FOUND, detail: ServerDetails.ERROR_RETRIEVING })
+      res.status(204).json({ message: ServerResponses.NOT_FOUND, detail: ServerDetails.ERROR_RETRIEVING });
     });
   }
   else if (email && !nickname && !first && !last) {
@@ -173,9 +173,9 @@ const getAllUsers = async (req: express.Request, res: express.Response) => {
       await rolesToUsersQueries.getRolesForUserQuery(result.id).then(([roleList]: any[]) => {
         const roles: string[] = roleList.map((role: Roles) => role.name);
         res.status(200).json({ result, roles });
-      }).catch((error: unknown) => { res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: error }); })
+      }).catch((error: unknown) => { res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: error }); });
     }).catch((_error: unknown) => {
-      res.status(204).json({ message: ServerResponses.NOT_FOUND, detail: ServerDetails.ERROR_RETRIEVING })
+      res.status(204).json({ message: ServerResponses.NOT_FOUND, detail: ServerDetails.ERROR_RETRIEVING });
     });
   }
   else if (first && last && !nickname && !email) {
@@ -186,11 +186,11 @@ const getAllUsers = async (req: express.Request, res: express.Response) => {
           user.roles = await rolesToUsersQueries.getRolesForUserQuery(user.id).then(([role]: any) => {
             const roles = role.map((r: any) => {
               const { name } = r; return name;
-            })
+            });
             return roles;
-          })
+          });
           return user;
-        })
+        });
         Promise.all(promises).then((result: any) => res.status(200).json(result));
       })
       .catch((error: any) => res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: error }));
@@ -204,18 +204,18 @@ const getAllUsers = async (req: express.Request, res: express.Response) => {
             await rolesToUsersQueries.getRolesForUserQuery(user.id).then(([role]: any) => {
               const roles = role.map((roleName: Roles) => {
                 const { name } = roleName; return name;
-              })
+              });
               return roles;
-            })
+            });
           return user;
-        })
+        });
         Promise.all(promises).then((result: any) => res.status(200).json(result));
       })
       .catch((error: any) => res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: error }));
   } else {
-    res.status(500).json({ message: ServerResponses.BAD_REQUEST })
+    res.status(500).json({ message: ServerResponses.BAD_REQUEST });
   }
-}
+};
 
 const getOneUserById = async (req: express.Request, res: express.Response) => {
   const { id } = req.params;
@@ -227,14 +227,14 @@ const getOneUserById = async (req: express.Request, res: express.Response) => {
         rolesToUsersQueries.getRolesForUserQuery(result.id).then(([roleList]: any[]) => {
           const roles: [] = roleList.map((role: Roles) => role.name);
           res.status(200).json({ ...result, roles });
-        }).catch((error: unknown) => { res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: error }); })
+        }).catch((error: unknown) => { res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: error }); });
       } else {
         res.status(404).json({ message: ServerResponses.NOT_FOUND, detail: ServerDetails.NO_DATA });
       }
     }).catch((_error: unknown) => {
       res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: ServerDetails.ERROR_RETRIEVING });
-    })
-}
+    });
+};
 
 const updateUser = (req: express.Request, res: express.Response) => {
   const { id } = req.params;
@@ -252,12 +252,12 @@ const updateUser = (req: express.Request, res: express.Response) => {
             res.status(200).json({ result: { ...result }, message: ServerResponses.REQUEST_OK, detail: ServerDetails.UPDATE_OK });
           }).catch((error: unknown) => {
             console.error(error);
-            res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: error })
-          })
+            res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: error });
+          });
       }
     }
-  })
-}
+  });
+};
 
 const updateUserPassword = async (req: express.Request, res: express.Response) => {
   const { id } = req.params;
@@ -285,9 +285,9 @@ const updateUserPassword = async (req: express.Request, res: express.Response) =
       }).catch((error: unknown) => {
         console.error(error);
         res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: error });
-      })
+      });
   }
-}
+};
 
 const deleteUser = (req: express.Request, res: express.Response) => {
   const { id } = req.params;
@@ -298,7 +298,7 @@ const deleteUser = (req: express.Request, res: express.Response) => {
           if (resultRole.affectedRows) {
             res.status(200).json({ message: ServerResponses.REQUEST_OK, detail: ServerDetails.DELETE_OK, user: result.affectedRows, roles: resultRole.affectedRows });
           }
-        })
+        });
       } else {
         res.status(404).json({ message: ServerResponses.NOT_FOUND, detail: ServerDetails.NO_DATA });
       }
@@ -307,6 +307,6 @@ const deleteUser = (req: express.Request, res: express.Response) => {
       console.error(error);
       res.status(500).json({ message: ServerResponses.SERVER_ERROR, detail: ServerDetails.ERROR_RETRIEVING });
     });
-}
+};
 
-module.exports = { getAllUsers, postUser, loginUser, getUserProfile, getOneUserById, updateUser, deleteUser, updateUserPassword }
+module.exports = { getAllUsers, postUser, loginUser, getUserProfile, getOneUserById, updateUser, deleteUser, updateUserPassword };

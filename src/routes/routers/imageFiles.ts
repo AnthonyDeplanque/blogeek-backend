@@ -1,7 +1,7 @@
-import * as express from 'express';
+import { Router } from 'express';
 const { uploadImageForUser } = require("../../controllers/imageFiles");
 
-const route = express.Router();
+const route = Router();
 route.post("/uploadAvatar/:id", uploadImageForUser);
 
 module.exports = route;

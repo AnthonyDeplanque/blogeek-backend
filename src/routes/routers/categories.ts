@@ -1,8 +1,8 @@
-import * as express from 'express';
+import { Router } from 'express';
 
 
 const { getCategories, getOneCategory, postCategory, updateCategory, deleteCategory } = require('../../controllers/categories');
-const route = express.Router();
+const route: Router = Router();
 
 route.get('/', getCategories);
 route.get('/:id', getOneCategory);

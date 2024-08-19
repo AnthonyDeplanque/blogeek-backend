@@ -1,15 +1,17 @@
 require('dotenv').config();
-import cors = require('cors');
-import path = require('path');
+import express from "express";
+import cors from "cors";
+// import cors = require('cors');
+import path from 'path';
 
 
 
 import { FILE_STORAGE_ROUTE } from '../src/Blogeek-library/config/apiRoutes';
 import { router } from './routes/index';
-const express = require('express');
+// const express = require('express');
 const app = express();
 
-const port = process.env.PORT || 1234;
+const port: string | number = process.env.PORT || 1234;
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");

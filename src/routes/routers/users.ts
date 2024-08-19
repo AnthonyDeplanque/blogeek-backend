@@ -4,12 +4,12 @@ import {
   ROLE_FOR_USER_API_ROUTE,
   TOKEN_ROUTE
 } from "../../Blogeek-library/config/apiRoutes";
-import * as express from 'express';
+import { Router } from 'express';
 
 
 const { getAllUsers, postUser, loginUser, getUserProfile, getOneUserById, updateUser, deleteUser, updateUserPassword } = require('../../controllers/users');
 const { addRoleToUser, removeRoleToUser } = require('../../controllers/roles');
-const route = express.Router();
+const route = Router();
 
 route.get("/", getAllUsers);
 route.get("/:id", getOneUserById);

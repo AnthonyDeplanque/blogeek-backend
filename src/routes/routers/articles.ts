@@ -1,9 +1,9 @@
-import * as express from 'express';
+import { Router } from 'express';
 import { SUBCATEGORIES_ROUTE } from '../../Blogeek-library/config/apiRoutes';
 
 
 const { getAllArticles, getOneArticle, postArticle, updateArticle, deleteArticle, postASubategoryForArticle } = require('../../controllers/articles');
-const route = express.Router();
+const route: Router = Router();
 
 route.get('/', getAllArticles);
 route.get('/:id', getOneArticle);

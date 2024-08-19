@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import { MEDIUMTEXT } from '../Blogeek-library/models/sqlVariables';
 
 const postArticleValidationObject = {
